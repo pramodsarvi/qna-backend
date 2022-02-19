@@ -113,19 +113,11 @@ app.post('/login',async (req,result)=>{
 } );
 async function addRefreshToken (uid,rftoken)
 {   console.log("uid refreshtoken")
-    const q='UPDATE `qna`.`user` SET `refreshToken` = \''+rftoken+'\' WHERE (`userid` = \''+uid+'\');';
-    dbcon.query(q,async (err,res)=>{ 
-        if(err)
-        {
-            console.log(err)
-            return 0;
+    const result=await users.updateOne({_id:uid},{
+        $set:{
+            refresh_token:rftoken
         }
-        else{
-            console.log(uid+"\n"+rftoken);
-            return 1;
-        }
-    })
-    
+    });  
 }
 app.get('/token',(req,res)=>{
     const refreshToken=req.body.refreshToken
@@ -169,6 +161,11 @@ dbcon.query(q,(err,res)=>{
         result.json(res)
     }
 })
+
+    
+
+
+
 })
 app.get('/feed',(req,result)=>{
     const id=req.body.id;
@@ -179,26 +176,23 @@ app.get('/feed',(req,result)=>{
             console.log(err)
         }
         else{
+
+            console.log(res);
             result.json(res);
         }
     })
+
+
+
+
 })
 async function ifExists(uid,token)
 {
-    const q='select refreshToken from user where userid='+uid+';'
-    dbcon.query(q,(err,res)=>{
-        if(err) 
-        {
-            console.log(err);
-            return 0;
-        }
-        else
-        {
-            if(res[0].refreshToken==token)
-                return 1;
-            return 0;
-        }
-    });
+
+    if(token==user.refresh_token)
+        return 1;
+    return 0;
+
 }
 function generateAccessToken(user)
 {
@@ -216,16 +210,12 @@ dbcon.query(q,(err,res)=>{
 })
 })
 
-app.post('/userinfo',authenticateToken,(req,result)=>{
+app.post('/userinfo',authenticateToken,async (req,result)=>{
     
     const id=req.user.id;
-    const q=`SELECT u.name,u.description,email,github,instagram,website,facebook FROM qna.user u where u.userid = "${id}";`;
-    dbcon.query(q,(err,res)=>{
-        if(err) console.log(err);
-        else{
-            result.json(res)
-        }
-    })
+    const user = await users.findOne({ _id: id });
+    result.join(user);
+
     })
 
 app.post('/getprojects',(req,result)=>{
@@ -254,6 +244,8 @@ app.post('/comment',authenticateToken,(req,result)=>{
             result.sendStatus(200);
         }
     })
+
+
 })
 
 app.post('/project',authenticateToken,(req,result)=>{
