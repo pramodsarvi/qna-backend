@@ -1,12 +1,9 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const UserSchema = new Schema(
+const question = new Schema(
   {
-    question_id: {
-      type: String,
-      required: true,
-    },
+    
     user_id: {
       type: String,
       required: true,
@@ -15,13 +12,18 @@ const UserSchema = new Schema(
       type: String,  
     },
     date: {
-      type: String     
+      type: Date,
+      default: Date.now()   
     },
     question_description: {
       type: String 
+    },
+    answers:{
+      type:[String],
+      required:false,
     }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("question", question);

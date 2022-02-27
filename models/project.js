@@ -1,13 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const UserSchema = new Schema(
+const ProjectSchema = new Schema(
   {
-    project_id: {
-      type: String,
-      enum: ["MALE", "FEMALE", "OTHERS"],
-      required: true,
-    },
     name: {
       type: String,
       required: true,
@@ -22,10 +17,12 @@ const UserSchema = new Schema(
       type: String 
     },
     time: {
-      type: String
+      type: Date,
+      default:Date.now(),
+      required:false
     }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model("Project", ProjectSchema);

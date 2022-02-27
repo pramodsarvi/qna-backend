@@ -1,8 +1,14 @@
 const mongoose = require("mongoose");
+
+var uuid = require('node-uuid');
 // const Schema = mongoose.Schema;
 
 const UserSchema = new mongoose.Schema(
   {
+    userid:{
+      type:String,
+      default:uuid.v1,
+    },
     name: {
       type: String,
       required: true,
@@ -37,8 +43,13 @@ const UserSchema = new mongoose.Schema(
         
     refresh_token:{
       type:String,
-      required:true
+      required:false
     },
+    last_log:{
+      type:Date,
+      default:Date.now(),
+      required:false
+    }
   },
   { timestamps: true }
 );
