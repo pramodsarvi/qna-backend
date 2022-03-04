@@ -58,21 +58,16 @@ exports.register= async(req,res)=>{
 
 exports.login=async (req,result)=>{
     try
-    {  console.log('LOGGING IN')
-        const q="Select password from user where username=\'"+req.body.username+"\';";
+    {  
+        // console.log(req.body)
         const user = await users.findOne({ username: req.body.username });
-        // console.log(user)
-       ///
        if(user===null)
         {   
-            // console.log('hiiiiiii')
             result.status(404).send();
         }
         else{
             
-            // console.log('Hi')
         let user1={'name':user.name,'userid':user.userid,'password':user.password,'description':user.description,'email':user.email,'website':user.website,'logout':user.lastlog}
-        // console.log(user+" logged in\n")
         if (req.body.password==user.password)
         {   console.log('Valid')
             const refreshToken=jwt.sign(user1,process.env.REFRESH_TOKEN_SECRET)
@@ -150,11 +145,8 @@ function generateAccessToken(user)
 }
 
 exports.feed= async (req,res)=>{
-    // console.log()
     const a= await user.findOne({userid:req.body.userid});
-    res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
     console.log(a);
-    console.log("pksshoiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiif")
     // var r;var name;
     // console.log(question.find({}))//,(err,questions)=>{
         //     r=JSON.parse(JSON.stringify(questions));
@@ -180,14 +172,11 @@ exports.feed= async (req,res)=>{
 }
 
 exports.user= async (req,res)=>{
-    const name=req.body.name;
-const q=`  SELECT u.userid,u.name,u.description,email,github,instagram,website,facebook FROM qna.user u where u.name like "%${name}%" limit 1 `;
-dbcon.query(q,(err,res)=>{
-    if(err) console.log(err);
-    else{
-        result.json(res)
-    }
-})
+    // const name=req.body.name;
+    const results=await users.find({$text:{$search:req.body.name}});
+    console.log(results[0])
+    return res.json({data:results}).send()
+
 }
 exports.userinfo=async (req,res)=>{
      // const id=req.user.id;
@@ -196,19 +185,29 @@ exports.userinfo=async (req,res)=>{
      console.log(user)
      result.json(user);
 }
-exports.getprojects=async (res,req)=>{
-    const id=req.body.userid;
-    const q=`select * from projects where uid=${id};`
-    dbcon.query(q,(err,res)=>{
-        if(err)
-        console.log(err)
-
-        else{
-            result.json(res)
-        }
-
-    })
+exports.getprojects=async (req,res)=>{
+    
+    const results=await project.find({$text:{$search:req.body.search}})
+    for(var i=0;i<results.length;i++)
+    {
+        var username=await user.find({userid:results[i].user_id})
+        results[i].username=username[0].name;
+        // console.log(results[i].username)
+    }
+    console.log(results) 
+    return res.json({data:results}).send();
+    
 }
+exports.getmyprojects=async (req,res)=>{
+
+    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+    const results=await project.find({userid:req.user.id});
+    
+    console.log(results) 
+    return res.json({data:results}).send();
+    
+}
+
 
 exports.postcomment=async (req,res)=>{
     const postid=req.body.postid;
@@ -228,34 +227,15 @@ exports.postcomment=async (req,res)=>{
 
 
 }
-exports.getproject=async (req,res)=>{
-    
-    const q='select p.*,s.name as oname from projects p,user s where p.uid=s.userid order by p.time desc;';
-    dbcon.query(q,(err,res)=>{
-        if(err)
-            console.log(err)
-        else
-        {   
-            // console.log("project posted")
-            result.json(res)
-        }
-    })
-
-}
 exports.postproject=async (req,res)=>{
-    const name=req.body.name;
+    const name=req.body.title;
     const description=req.body.description;
     const userid=req.user.id;
-    const skills=req.body.skills
-    const q='INSERT INTO `qna`.`projects` (`name`, `description`, `skills`, `uid`) VALUES (\''+name+'\', \''+description+'\', \''+skills+'\', '+userid+');';
-    dbcon.query(q,(err,result)=>{
-        if(err)
-            console.log(err)
-        else
-        {   console.log("project posted")
-            res.sendStatus(200);
-        }
-    })
+    const skills=req.body.skills;
+// console.log(req.body);
+    const newproject= new project({title:name,description:description,skills:skills,user_id:userid}).save();
+    res.status(200).send(newproject)
+    
 }
 exports.question=async (req,res)=>{
     const quest=req.body.question
@@ -277,26 +257,7 @@ exports.question=async (req,res)=>{
     const newquestion=new question({user_id:userid,question:quest,question_description:desc}).save();
     result.json(newquestion)
 }
-function authenticateToken (req,res,next)
-{  
 
-    const authHeader=req.body['authorization']
-
-    const token=authHeader && authHeader.split(' ')[1]
-    // console.log(token)
-    if(token==null)
-    {
-        return res.sendStatus(401); 
-    }
-    jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,user)=>{
-        if(err) return res.sendStatus(403)
-        req.user=user
-        // console.log(user)
-        next()
-        
-    })
-   
-}
 exports.projectresponse=async (req,res)=>{
     const userid=req.user.id;
     const projectid=req.body.projectid
