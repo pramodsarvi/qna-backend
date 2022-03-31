@@ -1,13 +1,18 @@
+var uuid = require('node-uuid');
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ProjectSchema = new Schema(
   {
+    projectid:{
+      type:String,
+      default:uuid.v1,
+    },
     title: {
       type: String,
       required: true,
     },
-    description: {
+    github: {
       type: String,  
     },
     skills: {

@@ -1,6 +1,9 @@
 const user=require('../models/user')
 const dbcon =require('../config');
-const jwt =require('jsonwebtoken')
+const jwt =require('jsonwebtoken');
+const mongoose=require('mongoose')
+require("dotenv").config('.env');
+
 const cors = require('cors');
 const users=require('../models/user');
 const question=require('../models/question')
@@ -11,7 +14,8 @@ const project = require('../models/project');
 exports.register= async(req,res)=>{
     try
     {   
-        const hashedPassword= await bcrypt.hash(req.body.password,10);
+        console.log(';ogin')
+        // const hashedPassword= await bcrypt.hash(req.body.password,10);
         try{
             // validate all fields
             console.log(req.body)
@@ -28,7 +32,7 @@ exports.register= async(req,res)=>{
             //         return result.send({"savedData":savedData});
             //     }
             // })
-            result.status(200).send(data);
+            res.status(200).send(data);
         }
         catch(error)
         {
@@ -59,8 +63,9 @@ exports.register= async(req,res)=>{
 exports.login=async (req,result)=>{
     try
     {  
-        // console.log(req.body)
-        const user = await users.findOne({ username: req.body.username });
+        // console.log("Login************************************************");
+        console.log(req.body)
+        const user = await users.findOne({ name: req.body.username});
        if(user===null)
         {   
             result.status(404).send();
@@ -69,12 +74,16 @@ exports.login=async (req,result)=>{
             
         let user1={'name':user.name,'userid':user.userid,'password':user.password,'description':user.description,'email':user.email,'website':user.website,'logout':user.lastlog}
         if (req.body.password==user.password)
-        {   console.log('Valid')
-            const refreshToken=jwt.sign(user1,process.env.REFRESH_TOKEN_SECRET)
+        {   
+            console.log('Valid')
+            // console.log(process.env.REFRESH_TOKEN_SECRET)
+            const refreshToken=jwt.sign(user1,process.env.REFRESH_TOKEN_SECRET,{expiresIn:'30m'})
             user2={'id':user.userid,'description':user.description,'lastlog':user.logout}
             const accessToken=generateAccessToken(user2)
             if((await addRefreshToken(user.userid,refreshToken)))
                 console.log("Could not add refresh token")// res2.sendStatus(500);
+            console.log("*******Login***********")
+            console.log(accessToken)
             result.json({accessToken:accessToken,refreshToken:refreshToken,isauth:"true"})
         }
         }
@@ -141,12 +150,12 @@ async function ifExists(uid,token)
 }
 function generateAccessToken(user)
 {
-    return jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn:60*60*5});
+    return jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn:'7d'});
 }
 
 exports.feed= async (req,res)=>{
     const a= await user.findOne({userid:req.body.userid});
-    console.log(a);
+    // console.log(a);
     // var r;var name;
     // console.log(question.find({}))//,(err,questions)=>{
         //     r=JSON.parse(JSON.stringify(questions));
@@ -180,10 +189,10 @@ exports.user= async (req,res)=>{
 }
 exports.userinfo=async (req,res)=>{
      // const id=req.user.id;
-     console.log(req.user)
+    //  console.log(req.user)
      const user = await users.findOne({ userid: req.user.id });
-     console.log(user)
-     result.json(user);
+    //  console.log(user)
+     res.status(200).json({data:user});
 }
 exports.getprojects=async (req,res)=>{
     
@@ -194,16 +203,12 @@ exports.getprojects=async (req,res)=>{
         results[i].username=username[0].name;
         // console.log(results[i].username)
     }
-    console.log(results) 
+    // console.log(results) 
     return res.json({data:results}).send();
     
 }
 exports.getmyprojects=async (req,res)=>{
-
-    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
     const results=await project.find({userid:req.user.id});
-    
-    console.log(results) 
     return res.json({data:results}).send();
     
 }
@@ -233,7 +238,7 @@ exports.postproject=async (req,res)=>{
     const userid=req.user.id;
     const skills=req.body.skills;
 // console.log(req.body);
-    const newproject= new project({title:name,description:description,skills:skills,user_id:userid}).save();
+    const newproject= new project({title:name,github:req.body.github,skills:skills,user_id:userid}).save();
     res.status(200).send(newproject)
     
 }
@@ -285,4 +290,31 @@ exports.getprojectresponse=async (req,res)=>{
             result.json(res);
         }
     })
+}
+exports.updateprofile=async (req,res)=>{
+    console.log("get project response")
+    console.log(req.body)
+    const name= req.body.name;
+  const email= req.body.email;
+  const description= req.body.description;
+  const github=req.body.github;
+  console.log(req.user.id)
+  const data= await user.updateOne({userid:req.user.id},
+    {
+        $set:{
+            name:name,
+            email:String(email),
+            description:description,
+            github:String(github)
+        }
+    });
+    console.log(data)
+}
+exports.deleteproject=async (req,res)=>{
+    console.log("Delete")
+    console.log(req.body)
+   console.log(req.user.id)
+   const id= mongoose.Types.ObjectId(req.body.id)
+  const data= await project.deleteOne({"_id":req.body.projectid});
+    console.log(data)
 }

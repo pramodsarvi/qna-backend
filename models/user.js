@@ -31,10 +31,6 @@ const UserSchema = new mongoose.Schema(
     },
     website:{
       type:String
-    },
-    username:{
-      type:String,
-      required:true
     },    
     password:{
       type:String,

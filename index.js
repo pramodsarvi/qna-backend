@@ -21,26 +21,23 @@ const main = async () => {
     app.use(express.urlencoded({extended: true,}));
     const authenticateToken =(req,res,next)=>
 {  
-
+    // console.log(req.body)
     const authHeader=req.body['authorization']
-    // console.log(authHeader)
-    const token=authHeader && authHeader.split(' ')[1]
-    console.log("TOKEN:"+token)
+    const token=authHeader && authHeader.split(" ")[1]
     if(token==null)
     {
         return res.sendStatus(401); 
     }
-    jwt.verify(token,process.env.ACCESS_TOKEN_SECRET,(err,user)=>{
-        if(err) return res.sendStatus("err")
+    jwt.verify(token,String(process.env.ACCESS_TOKEN_SECRET),(err,user)=>{
+        if(err) {return res.sendStatus(401)}
         req.user=user
-        // console.log(user)
         next()
         
     })
    
 }  
-    app.post('/api/register',controller.register)
-    app.post('/api/login',controller.login)
+    app.post('/register',controller.register)
+    app.post('/login',controller.login)
     app.use('/api',authenticateToken,AuthRoute);
 
     app.use(cors({origin: 'http://localhost:3000'}));
