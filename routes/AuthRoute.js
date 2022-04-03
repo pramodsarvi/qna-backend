@@ -1,5 +1,8 @@
 const express=require('express')
 const router = express.Router();
+const path=require('path')
+const multer=require('multer')
+const file_upload=require('../file_uploads/multer')
 const controller=require('../controler/controller')
 // const authenticateToken=require('../controler/controller')
 
@@ -18,6 +21,15 @@ router.post('/updateprofile',controller.updateprofile)
 router.post('/projectresponse',controller.projectresponse)
 router.post('/getprojectresponse',controller.getprojectresponse)
 router.post('/deleteproject',controller.deleteproject)
+const storage=multer.diskStorage({
+    destination:'./file_uploads/files',
+    filename:(req,file,cb)=>{
+
+    cb(null,Date.now()+path.extname(file.originalname))  
+    }
+})
+const upload=multer({storage:storage})
+router.post('/uploadimage',upload.single('file'),controller.upload)
 
 router.post('/feed',controller.feed );
 module.exports=router;

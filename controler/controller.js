@@ -3,7 +3,7 @@ const dbcon =require('../config');
 const jwt =require('jsonwebtoken');
 const mongoose=require('mongoose')
 require("dotenv").config('.env');
-
+const upload_file =require('../file_uploads/multer')
 const cors = require('cors');
 const users=require('../models/user');
 const question=require('../models/question')
@@ -63,7 +63,6 @@ exports.register= async(req,res)=>{
 exports.login=async (req,result)=>{
     try
     {  
-        // console.log("Login************************************************");
         console.log(req.body)
         const user = await users.findOne({ name: req.body.username});
        if(user===null)
@@ -155,28 +154,6 @@ function generateAccessToken(user)
 
 exports.feed= async (req,res)=>{
     const a= await user.findOne({userid:req.body.userid});
-    // console.log(a);
-    // var r;var name;
-    // console.log(question.find({}))//,(err,questions)=>{
-        //     r=JSON.parse(JSON.stringify(questions));
-        //     for(var i=0;i<r.length;i++)
-        //     {
-                
-        //         // r[i]['username']=
-        //         const a=await user.find({'userid':r[0]['user_id']})
-        //         console.log(a)
-        //         // r[0].username=a.
-        //         // r[i]['username']=
-        //     // r[i]['username']='qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq'
-        //         console.log('qqqqqqqqqqqqqqqqqqqqqqqqqqqq\n')
-        //     }
-            
-
-        //     console.log(r)
-        //     console.log(questions);
-        // // return questions;
-    // })
-    // console.log("********************************************/n"+resukt)
     res.json({message:"OK",message:"ok"}).send()
 }
 
@@ -317,4 +294,11 @@ exports.deleteproject=async (req,res)=>{
    const id= mongoose.Types.ObjectId(req.body.id)
   const data= await project.deleteOne({"_id":req.body.projectid});
     console.log(data)
+}
+
+exports.upload=async (req,res)=>{
+    console.log("UPLOAD")
+    console.log(req.user)
+    console.log(req.file)
+   
 }
