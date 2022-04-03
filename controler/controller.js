@@ -6,6 +6,7 @@ require("dotenv").config('.env');
 const upload_file =require('../file_uploads/multer')
 const cors = require('cors');
 const users=require('../models/user');
+const nodemailer=require('nodemailer')
 const question=require('../models/question')
 const project = require('../models/project');
 
@@ -301,4 +302,26 @@ exports.upload=async (req,res)=>{
     console.log(req.user)
     console.log(req.file)
    
+}
+exports.sendEmail= async (req,res)=>{
+    console.log(req.body)
+    console.log('email')
+    
+    const transporter=nodemailer.createTransport({
+        service:'hotmail',
+        auth:{
+            user:'skill-connect@outlook.com',
+            pass:'Password12345'
+        }
+    });
+    const options={
+        from:'skill-connect@outlook.com',
+        to:'pramodkumarssarvi@gmail.com',
+        subject:"asdfgg",
+        text:"Your message",
+    };
+    transporter.sendMail(options,(err,info)=>{
+        if(err){console.log(err);}
+        console.log(info.response);
+    })
 }
