@@ -299,8 +299,11 @@ exports.deleteproject=async (req,res)=>{
 
 exports.upload=async (req,res)=>{
     console.log("UPLOAD")
+    const filter={userid:req.user.id}
     console.log(req.user)
     console.log(req.file)
+    // cosnt update={profile_pic:}
+    const result=user.findOneAndUpdate(filter,)
    
 }
 exports.sendEmail= async (req,res)=>{
