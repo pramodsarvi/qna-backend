@@ -82,8 +82,7 @@ exports.login=async (req,result)=>{
             const accessToken=generateAccessToken(user2)
             if((await addRefreshToken(user.userid,refreshToken)))
                 console.log("Could not add refresh token")// res2.sendStatus(500);
-            console.log("*******Login***********")
-            console.log(accessToken)
+            
             result.json({accessToken:accessToken,refreshToken:refreshToken,isauth:"true"})
         }
         }
@@ -303,7 +302,7 @@ exports.upload=async (req,res)=>{
     console.log(req.user)
     console.log(req.file)
     // cosnt update={profile_pic:}
-    const result=user.findOneAndUpdate(filter,)
+    // const result=user.findOneAndUpdate(filter,)
    
 }
 exports.sendEmail= async (req,res)=>{
@@ -332,7 +331,7 @@ exports.sendEmail= async (req,res)=>{
             const update={otp:seq.toString()}
             const filter={userid:req.user.id}
             const result=await user.findOneAndUpdate(filter,update)
-            console.log(result)
+            // console.log(result)
         }
     })
 }
@@ -342,16 +341,21 @@ exports.changePassword= async (req,res)=>{
     const update={password:req.body.password}
     const filter={userid:req.user.id}
     // console.log(req.body)
-    const us=user.findOne(filter)
-    if(us.otp===req.body.otp)
+    const us= await user.findOne(filter)
+    console.log(req.body.otp)
+    // console.log(us)s
+    if(us.otp===req.body.otp.toString())
     {
-        const result=await user.findOneAndUpdate(filter,update)
+        const result=await user.findOneAndUpdate(filter,update);
+        // console.log(result)
+        res.status(200).json({ message: 'Passsword Changed' })
     }
     else
     {
         // res.json("300")
+        res.status(400).json({ message: 'Incorrect OTP :Passsword could not be Changed' })
         // send incoreect otp message
     }
-    console.log(result)
+    // console.log(result)
 
 }

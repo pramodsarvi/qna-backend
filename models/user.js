@@ -53,7 +53,7 @@ const UserSchema = new mongoose.Schema(
     },
     profile_pic:{
       type:String,
-      // default:
+      default:'https://bootdey.com/img/Content/avatar/avatar7.png',
       required:false
     }
   },
