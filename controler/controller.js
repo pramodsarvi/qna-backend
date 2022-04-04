@@ -304,9 +304,11 @@ exports.upload=async (req,res)=>{
    
 }
 exports.sendEmail= async (req,res)=>{
-    console.log(req.body)
+    // console.log(req.user)
     console.log('email')
-    
+    const result=await users.findOne({userid:req.user.id})
+    recepient_email=result.email
+    console.log(recepient_email)
     const transporter=nodemailer.createTransport({
         service:'hotmail',
         auth:{
@@ -314,14 +316,19 @@ exports.sendEmail= async (req,res)=>{
             pass:'Password12345'
         }
     });
+    var seq = (Math.floor(Math.random() * 10000) + 10000).toString().substring(1);
+console.log(seq);
     const options={
         from:'skill-connect@outlook.com',
-        to:'pramodkumarssarvi@gmail.com',
-        subject:"asdfgg",
-        text:"Your message",
+        to:recepient_email.toString(),
+        subject:"OTP for password change",
+        text:"Your OTP is : "+seq.toString(),
     };
+    console.log(options)
     transporter.sendMail(options,(err,info)=>{
         if(err){console.log(err);}
-        console.log(info.response);
+        else{
+            console.log(info.response);
+        }
     })
 }
