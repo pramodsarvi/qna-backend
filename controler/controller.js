@@ -304,7 +304,6 @@ exports.upload=async (req,res)=>{
    
 }
 exports.sendEmail= async (req,res)=>{
-    // console.log(req.user)
     console.log('email')
     const result=await users.findOne({userid:req.user.id})
     recepient_email=result.email
@@ -317,18 +316,39 @@ exports.sendEmail= async (req,res)=>{
         }
     });
     var seq = (Math.floor(Math.random() * 10000) + 10000).toString().substring(1);
-console.log(seq);
     const options={
         from:'skill-connect@outlook.com',
         to:recepient_email.toString(),
         subject:"OTP for password change",
         text:"Your OTP is : "+seq.toString(),
     };
-    console.log(options)
-    transporter.sendMail(options,(err,info)=>{
+    transporter.sendMail(options,async (err,info)=>{
         if(err){console.log(err);}
         else{
             console.log(info.response);
+            const update={otp:seq.toString()}
+            const filter={userid:req.user.id}
+            const result=await user.findOneAndUpdate(filter,update)
+            console.log(result)
         }
     })
+}
+exports.changePassword= async (req,res)=>{
+    
+    console.log("changePassword")
+    const update={password:req.body.password}
+    const filter={userid:req.user.id}
+    // console.log(req.body)
+    const us=user.findOne(filter)
+    if(us.otp===req.body.otp)
+    {
+        const result=await user.findOneAndUpdate(filter,update)
+    }
+    else
+    {
+        // res.json("300")
+        // send incoreect otp message
+    }
+    console.log(result)
+
 }

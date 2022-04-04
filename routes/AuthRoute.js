@@ -22,6 +22,7 @@ router.post('/projectresponse',controller.projectresponse)
 router.post('/getprojectresponse',controller.getprojectresponse)
 router.post('/deleteproject',controller.deleteproject)
 router.post('/sendEmail',controller.sendEmail)
+router.post('/changePassword',controller.changePassword)
 const storage=multer.diskStorage({
     destination:'./file_uploads/files',
     filename:(req,file,cb)=>{
