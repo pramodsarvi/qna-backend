@@ -1,5 +1,5 @@
 const user=require('../models/user')
-const dbcon =require('../config');
+// const dbcon =require('../config');
 const jwt =require('jsonwebtoken');
 const mongoose=require('mongoose')
 require("dotenv").config('.env');

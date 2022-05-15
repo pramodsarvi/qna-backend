@@ -1,5 +1,4 @@
 const express=require('express');
-const dbcon =require('./config');
 const comment=require('./models/answer');
 const jwt =require('jsonwebtoken');
 const multer=require('multer');
